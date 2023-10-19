@@ -4,14 +4,16 @@ import numpy as np
 
 # – An implementation of a 1-dimensional, binary-state cellular automaton (in Python) which operates on arrays of size 60
 class CellularAutomata:
-    """Skeleton CA, you should implement this."""
+    """The cells are defined as follows: 1 = living cell, 0 = dead cell"""
 
     def __init__(self, rule_number: int):
         """ Intialize the cellular automaton with a given rule number """
         self.rule_number = rule_number
+        # Precompute the rule table
+        self.rule_table = self.generate_rule_table(rule_number)
 
     def generate_rule_table(self, rule):
-        # 1 = living cell, 0 = dead cell
+        """Generate the rule table for a given rule number"""
         rule_binary = [int(x) for x in bin(rule)[2:].zfill(8)[::-1]]
         rule_table = {}
 
@@ -22,23 +24,16 @@ class CellularAutomata:
 
         return rule_table
 
-    def apply_rule(self, rule, state):
-        rule_table = self.generate_rule_table(rule)
+    def apply_rule(self, state):
+        """Apply the rule to the state"""
 
-        # Extend the state by wrapping around
+        # The state is extended by wrapping around
         extended_state = [0] + state + [0]
-
-        # Apply the rule to generate the next state
         new_state = []
 
         for i in range(1, len(extended_state) - 1):
-            # Calculate the neighborhood configuration
             neighborhood = (extended_state[i - 1], extended_state[i], extended_state[i + 1])
-
-            # Get the corresponding bit from the rule table and convert it to an integer
-            new_cell_value = rule_table[neighborhood]
-
-            # Append the result to the new state
+            new_cell_value = self.rule_table[neighborhood]
             new_state.append(new_cell_value)
 
         return new_state
@@ -48,7 +43,7 @@ class CellularAutomata:
         state = c0
         state = list(state)
         for _ in range(t):
-            state = self.apply_rule(self.rule_number, state)
+            state = self.apply_rule(state)
         return state
 
     @classmethod

@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 from skeleton import CellularAutomata
 
 
-N_REPEATS = 100
-N_STEPS = 100
-
+N_REPEATS = 100 # number of times to repeat the experiment
+N_STEPS = 100 # number of steps to run the CA for in an experiment
 
 def generate_runs(rule_number, n_steps):
+    """Generate n_steps of the CA with the given rule number"""
     ca = CellularAutomata(rule_number)
     state = np.random.randint(2, size=60)
     states = [state]
@@ -17,13 +17,12 @@ def generate_runs(rule_number, n_steps):
         states.append(state)
     return states
 
-
 def count_nonzero(states):
+    """Return the fraction of living cells in each state"""
     return [np.count_nonzero(state) / np.count_nonzero(states[0]) for state in states]
 
-
-# the longest string of equal symbols
 def longest_consecutive_string(states):
+    """Return the length of the longest consecutive string of 1s or 0s in each state"""
     result = []
 
     for state in states:
@@ -41,17 +40,16 @@ def longest_consecutive_string(states):
 
     return result
 
-
 def num_changed(states):
+    """Return the number of cells that changed from the previous state to the current state"""
     results = [0]
     for prev_state, state in zip(states, states[1:]):
         n_changed = sum(1 if prev_state[i] != state[i] else 0 for i in range(len(prev_state)))
         results.append(n_changed)
     return results
 
-
-# compute the age of the state that has not been updated for the longest time
 def longest_surviving_cell_age(states):
+    """Return the age of the longest surviving cell in each state"""
     ages = [0] * len(states[0])
     results = [0]
     for prev_state, state in zip(states, states[1:]):
@@ -64,14 +62,13 @@ def longest_surviving_cell_age(states):
         assert max(ages) >= 0
     return results
 
-
 def save_fig(datas, experiment_name):
+    """Save a figure with the given datas"""
     plt.figure()
     for rule_number, data in datas.items():
         std = np.std(data, axis=0)
         mean = np.mean(data, axis=0)
         plt.plot(mean, label=rule_number)
-    # plt.fill_between(range(N_STEPS), mean - std, mean + std, alpha=0.2)
     plt.legend()
     plt.title(experiment_name)
 
@@ -81,7 +78,11 @@ def save_fig(datas, experiment_name):
 
 
 def main():
-    # python experiment.py 26
+    """Run the experiments.
+
+    Example:
+    $ python3 experiment.py 30 90 110
+    """
 
     rule_numbers = [int(x) for x in sys.argv[1:]]
     if len(rule_numbers) == 0:
@@ -93,16 +94,15 @@ def main():
     a = {rule_number: [] for rule_number in rule_numbers}
     for rule_number in rule_numbers:
         for i in range(N_REPEATS):
+            # seed the random number generator with the repeat number
+            # this ensures that each rule number has a different yet
+            # repeatable random initial state
             np.random.seed(i)
             states = generate_runs(rule_number, N_STEPS)
-
             num_living[rule_number].append(count_nonzero(states))
             lcs[rule_number].append(longest_consecutive_string(states))
             nc[rule_number].append(num_changed(states))
             a[rule_number].append(longest_surviving_cell_age(states))
-
-            # for state in states:
-            #     print(''.join(['*' if cell == 1 else ' ' for cell in state]))
 
     save_fig(num_living, experiment_name='num_living')
     save_fig(lcs, experiment_name='longest_continuous_string')
