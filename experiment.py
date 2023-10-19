@@ -66,7 +66,6 @@ def save_fig(datas, experiment_name):
     """Save a figure with the given datas"""
     plt.figure()
     for rule_number, data in datas.items():
-        std = np.std(data, axis=0)
         mean = np.mean(data, axis=0)
         plt.plot(mean, label=rule_number)
     plt.legend()

@@ -10,11 +10,12 @@ class CellularAutomata:
         """ Intialize the cellular automaton with a given rule number """
         self.rule_number = rule_number
         # Precompute the rule table
-        self.rule_table = self.generate_rule_table(rule_number)
+        self.rule_table = self.generate_rule_table()
 
-    def generate_rule_table(self, rule):
+    def generate_rule_table(self):
         """Generate the rule table for a given rule number"""
-        rule_binary = [int(x) for x in bin(rule)[2:].zfill(8)[::-1]]
+        binary_string = format(self.rule_number, '08b')
+        rule_binary = [int(x) for x in reversed(binary_string)]
         rule_table = {}
 
         for state in range(8):
